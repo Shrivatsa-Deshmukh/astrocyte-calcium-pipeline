@@ -103,7 +103,7 @@ BH FDR correction (α = 0.05) is applied within each quantile × comparison bloc
 
 ## Key Results
 
-To isolate effects mediated by the **5-HT2A / IP3R2 signaling pathway**, results focus on features consistently changed in **both AV and IP relative to WT**. AV blocks the 5-HT2A receptor; IP lacks IP3R2-mediated calcium release. Effects shared between both groups implicate specific pathway. All values are Δ FC vs WT (*** p<0.001, ** p<0.01, * p<0.05, ns = not significant, BH FDR).
+To isolate effects mediated by the **5-HT2A / IP3R2 signaling pathway**, results focus on features consistently changed in **both AV and IP relative to WT**. AV blocks the 5-HT2A receptor; IP lacks IP3R2-mediated calcium release. Effects shared between both groups implicate specific pathway. All values are Δ FC vs WT (*** p<0.001, ** p<0.01, * p<0.05, ns = not significant).
 
 ### Drug condition
 
@@ -112,78 +112,13 @@ To isolate effects mediated by the **5-HT2A / IP3R2 signaling pathway**, results
 | Max simultaneous events | −0.91 *** | −2.13 *** | −6.41 *** | −0.95 *** | −2.23 *** | −6.70 *** |
 | Area | −0.24 *** | −0.70 *** | −1.02 ** | ns | −1.16 *** | −2.32 *** |
 | Perimeter | −0.16 ** | −0.41 *** | −0.55 *** | ns | −0.61 ** | −1.04 *** |
-| Co-location (same location) | −0.33 *** | −0.33 ** | −0.33 ** | −0.33 * | ns | −0.67 ** |
 | Co-location (similar size) | ns | −0.50 *** | −2.00 *** | ns | ns | −2.00 ** |
 
-**Max simultaneous events** is the strongest finding. The suppression grows dramatically from Q50 (~−0.93 in both groups) to Q90 (~−6.5), meaning psilocybin generates extreme high-synchrony bursting in WT that is almost entirely absent in both AV and IP. This indicates complete dependence of synchronized network bursting on 5-HT2A/IP3R2 signaling.
+**Max simultaneous events** is the strongest finding. The suppression grows dramatically from Q50 to Q90, meaning psilocybin generates extreme high-synchrony bursting in WT that is almost entirely absent in both AV and IP. This indicates complete dependence of synchronized network bursting on 5-HT2A/IP3R2 signaling.
 
-**Area and perimeter** suppression is concentrated at Q75–Q90. Importantly, the IP effect at Q50 is not significant — smaller events persist without IP3R2 signaling, but large events are selectively absent. This indicates IP3R2 specifically drives high-amplitude calcium events rather than uniformly shifting event size.
-
-**Co-localized events** show a tail-specific pattern: baseline-level spatial clustering (Q50) is intact in both groups, but high co-location counts at Q75–Q90 are strongly suppressed. Only the extreme clustering events depend on 5-HT2A/IP3R2 signaling.
+**Area and perimeter** & **Co-localized events** show a tail-specific pattern, Q75–Q90 are strongly suppressed. 
 
 **AV-only effects (not shared with IP):** Rise time, decay time, and duration 50–50% were significantly prolonged in AV at Q50 (all p<0.01) but showed no significant IP effects at any quantile. This may reflect additional 5-HT2A-mediated kinetic effects beyond IP3R2, or limited power in the IP group (~15 events/slice).
 
 **No significant effects in either group:** Max ΔF, Max ΔF/F, all three AUC variants (raw/ΔF/ΔF/F), and duration 10–10% showed no significant effects after FDR correction. Psilocybin via 5-HT2A/IP3R2 selectively targets event size, spatial clustering, and network synchrony rather than uniformly altering all calcium event properties.
 
-### Washout condition
-
-| Feature | AV Q50 | AV Q75 | AV Q90 | IP Q50 | IP Q75 | IP Q90 |
-|---------|--------|--------|--------|--------|--------|--------|
-| Max simultaneous events | −1.13 *** | −3.54 *** | −7.26 *** | −1.46 *** | −4.00 *** | −7.80 *** |
-| Area | −0.16 * | −0.45 ** | −0.80 ** | ns | ns | ns |
-| Perimeter | ns | −0.32 *** | −0.39 ** | ns | ns | ns |
-| Co-location (same location) | −0.25 *** | ns | −0.50 *** | ns | ns | ns |
-| Co-location (similar size) | ns | −0.50 *** | −2.00 *** | ns | −1.00 *** | −2.00 ** |
-
-Because washout values share the same baseline denominator as drug values, absolute Q50 values directly show recovery status (y = 1.0 = fully recovered):
-
-| Feature | WT washout | AV drug | AV washout | IP drug | IP washout |
-|---------|------------|---------|------------|---------|------------|
-| Max simultaneous events | 2.13 | 2.13 | 1.00 | 1.18 | 0.67 |
-| Area | 1.05 | 0.93 | 0.89 | 0.90 | 0.85 |
-| Co-location (similar size) | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
-
-**None of the shared effects reverse at washout.** WT itself remains elevated above baseline for synchrony (Q50 = 2.13), showing psilocybin's effect persists in the intact pathway. AV recovers to baseline at Q50 for synchrony (washout Q50 = 1.00) but maintains strong suppression at Q75–Q90. Area remains partially suppressed in AV (washout Q50 = 0.89, below baseline) but IP loses significance at washout, likely due to reduced power (n = 58 washout events).
-
-**IP shows progressive suppression rather than recovery.** Max simultaneous events Q50 drops from 1.18 during drug to 0.67 at washout — below baseline — while AV moves toward 1.0. IP3R2 knockout astrocytes do not reverse the network synchrony effect of psilocybin during the washout window, suggesting sustained downstream changes beyond acute receptor occupancy.
-
-**Co-location (similar size)** maintains its tail-specific pattern at washout unchanged: Q50 = 1.00 in both groups (at baseline), Q75–Q90 strongly suppressed in both. The upper tail of spatial clustering does not recover.
-
-**New washout-specific changes:** IP showed a rebound in Max ΔF/F (elevated above WT at all quantiles, p<0.001) not present during drug, suggesting compensatory upregulation of calcium amplitude. AV showed elevated Max ΔF above WT at Q50–Q90 (p≤0.023), also absent during drug — a rebound overshoot after receptor blockade is removed.
-
----
-
-## Exported Files
-
-All exports are saved under `Output__/` after running `analysis_revised.ipynb`.
-
-**Per-group feature CSVs** — saved under `Output__/{group_path}/` for each group:
-
-| File | Description |
-|------|-------------|
-| `{group}_baseline_normalized.csv` | Fold-change normalized, baseline condition |
-| `{group}_drug_normalized.csv` | Fold-change normalized, drug condition |
-| `{group}_washout_normalized.csv` | Fold-change normalized, washout condition |
-| `{group}_baseline_unnormalized.csv` | Raw values, baseline |
-| `{group}_drug_unnormalized.csv` | Raw values, drug |
-| `{group}_washout_unnormalized.csv` | Raw values, washout |
-
-**Per-group binned CSVs** — same location, one file per condition × bin size (9 files per group):
-
-| File | Description |
-|------|-------------|
-| `{group}_{condition}_binned5.csv` | Mean per 5-frame bin |
-| `{group}_{condition}_binned10.csv` | Mean per 10-frame bin |
-| `{group}_{condition}_binned20.csv` | Mean per 20-frame bin |
-
-**Event count exports** — saved directly under `Output__/`:
-
-| File | Description |
-|------|-------------|
-| `all_groups_event_count_summary.csv` | One row per slice: raw counts + FC for all groups and conditions |
-| `{group}_event_counts_raw.csv` | Frame-wise event counts per slice |
-| `{group}_event_counts_raw_binned5.csv` | Frame counts summed per 5-frame bin |
-| `{group}_event_counts_raw_binned10.csv` | Frame counts summed per 10-frame bin |
-| `{group}_event_counts_raw_binned20.csv` | Frame counts summed per 20-frame bin |
-
-Total: 12 feature CSVs + 9 binned CSVs per group, plus 17 event count files across all groups.
