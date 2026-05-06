@@ -49,11 +49,9 @@ Key parameters:
 |-----------|---------|-------------|
 | `MIN_FRAME` | `20` | Start frame |
 | `MAX_FRAME` | `100` | End frame |
-| `CHANNEL_SUFFIX` | `'Ch1'` | Channel suffix in filenames; set `''` to omit |
 | `CONTROL_GROUP` | `'WT'` | Reference group for quantile regression |
 | `QUANTILES` | `[0.50, 0.75, 0.90]` | Quantiles tested |
 | `GROUP_SIZE` | `10` | Frames per time bin (temporal notebook) |
-| `MIN_SLICES_PER_BIN` | `3` | Bins below this are faded in temporal plots |
 
 ---
 
