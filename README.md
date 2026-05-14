@@ -8,18 +8,16 @@ Post-processing pipeline for astrocyte calcium imaging data exported from [AQuA2
 
 **`analysis.ipynb`** — run first
 - Loads and transposes AQuA2 CSV exports
-- Normalizes all features to baseline via per-slice fold-change
-- Quantile regression at Q50 / Q75 / Q90 (WT as reference)
-- Between-group dot plots
-- Within-group timepoint plots (Baseline → Drug → Washout)
-- Exports normalized CSVs and raw/binned event count CSVs
+- Normalizes features to baseline via per-slice fold-change
+- Between-group quantile regression at Q50 / Q75 / Q90 (WT as reference)
+- Within-group quantile regression at Q50 / Q75 / Q90 (Baseline as reference, per group)
+- Exports normalized CSVs, raw CSVs, frame-binned CSVs, and event count CSVs
+- Plot functions available for between-group dot plots, within-group quantile trajectory plots, and timepoint dot plots
 
 **`analysis_time.ipynb`** — run after main
-- Loads normalized CSVs produced by the main notebook
-- Bins events into 10-frame windows (frames 20–100)
-- Events summarized within each slice per bin first, then aggregated across slices — giving each slice equal weight regardless of event count
+- Loads normalized CSVs from the main notebook
+- Bins events into 10-frame windows and summarizes within each slice before aggregating — equal slice weight regardless of event count
 - Time-series plots: group median ± MAD, all groups overlaid, Drug and Washout side by side
-- Event count panel: FC-normalized per slice to its own baseline total
 
 ---
 
@@ -33,9 +31,9 @@ Organize AQuA2 exports under `Output__/`:
 Output__/
 ├── WT/
 │   ├── data1/
-│   │   ├── slice_baseline
-│   │   ├── slice_psi
-│   │   ├── slice_washout
+│   │   ├── slice1_baseline_AQuA2_Ch1.csv
+│   │   ├── slice1_psi_AQuA2_Ch1.csv
+│   │   ├── slice1_washout_AQuA2_Ch1.csv
 │   │   └── ...
 │   └── data2/
 ├── Antagonist- Volinanserin/
@@ -43,15 +41,15 @@ Output__/
 └── CalEx/
 ```
 
-Key parameters:
+Key parameters (configuration cell):
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `MIN_FRAME` | `20` | Start frame |
 | `MAX_FRAME` | `100` | End frame |
-| `CONTROL_GROUP` | `'WT'` | Reference group for quantile regression |
-| `QUANTILES` | `[0.50, 0.75, 0.90]` | Quantiles tested |
-| `GROUP_SIZE` | `10` | Frames per time bin (temporal notebook) |
+| `CHANNEL_SUFFIX` | `'Ch1'` | AQuA2 channel suffix; set to `''` if unused |
+| `CONTROL_GROUP` | `'WT'` | Reference group for between-group regression |
+| `BIN_SIZES` | `[5, 10, 20]` | Frame bin widths for exported CSVs |
 
 ---
 
@@ -64,59 +62,63 @@ Key parameters:
 | IP | IP3R2 conditional knockout + Psilocybin |
 | CE | CalEx + Psilocybin |
 
-Three conditions per group: Baseline → Drug → Washout.
-Slices: WT n=11, AV n=8, IP n=6. CE had no complete recording triplets and is excluded from statistics.
+Three conditions per group: Baseline → Drug → Washout. A slice is included only if all three condition files are present. 
 
 ---
 
 ## Normalization
 
-All features are normalized per slice using fold-change relative to that slice's own baseline median:
+Per-slice fold-change relative to that slice's own baseline median:
 
 ```
 normalized_value = event_feature_value / slice_baseline_median
 ```
 
-Normalization is computed per slice before pooling across slices, so events from preparations with different absolute activity levels are on a common scale. Both drug and washout values use the same baseline denominator — so **y = 1.0 is a shared reference throughout**: above 1.0 means elevated relative to baseline, below 1.0 means suppressed, and a washout value of 1.0 means full recovery.
+Both drug and washout values use the same denominator — y = 1.0 throughout means no change from pre-drug baseline.
 
 ---
 
 ## Statistical Methods
 
-**Primary test: quantile regression at Q50 / Q75 / Q90**
+Two quantile regression analyses at Q50 / Q75 / Q90.
 
-For each feature, quantile regression is fitted across all events with group as a categorical predictor and WT as the reference:
-
+**Between-group** — pools all events per condition, Group as predictor, WT as reference:
 ```
-feature_FC ~ C(Group)   [WT as reference]
+feature_FC ~ C(Group)
 ```
+Coefficient = difference in q-th percentile relative to WT. Identifies pathway-dependent effects.
 
-The coefficient for each group at quantile q is the difference in the q-th percentile relative to WT. Quantile regression is used rather than a single summary test because key effects in calcium imaging data tend to be concentrated in the upper tail — large events, high-synchrony bursts — and would be missed by median-only comparisons.
-
-BH FDR correction (α = 0.05) is applied within each quantile × comparison block.
-
-**Note on statistical unit:** regression is applied at the event level. Events within the same slice are not fully independent; p-values reflect event-level sample size rather than slice-level replication (n = 6–11 slices per group). Coefficient magnitude is the primary effect-size estimate.
+**Within-group** — pools events per condition within each group, Condition as predictor, Baseline as reference:
+```
+feature_FC ~ C(Condition)
+```
+Coefficient = shift in q-th percentile relative to own baseline. 
 
 ---
 
 ## Key Results
 
-To isolate effects mediated by the **5-HT2A / IP3R2 signaling pathway**, results focus on features consistently changed in **both AV and IP relative to WT**. AV blocks the 5-HT2A receptor; IP lacks IP3R2-mediated calcium release. Effects shared between both groups implicate specific pathway. All values are Δ FC vs WT (*** p<0.001, ** p<0.01, * p<0.05, ns = not significant).
+Two findings from the drug condition. Between-group values are Δ FC vs WT; within-group values are Δ FC vs own baseline.
 
-### Drug condition
+### Finding 1 — Pathway-dependent: extreme event population requiring 5-HT2A/IP3R2
 
-| Feature | AV Q50 | AV Q75 | AV Q90 | IP Q50 | IP Q75 | IP Q90 |
+WT generates events that are larger, more synchronised, and more spatially recurrent than baseline. Both AV and IP fail to generate this population — not active suppression, but failure to achieve the WT increase.
+
+| Feature (vs WT, Drug) | AV Q50 | AV Q75 | AV Q90 | IP Q50 | IP Q75 | IP Q90 |
 |---------|--------|--------|--------|--------|--------|--------|
 | Max simultaneous events | −0.91 *** | −2.13 *** | −6.41 *** | −0.95 *** | −2.23 *** | −6.70 *** |
 | Area | −0.24 *** | −0.70 *** | −1.02 ** | ns | −1.16 *** | −2.32 *** |
-| Perimeter | −0.16 ** | −0.41 *** | −0.55 *** | ns | −0.61 ** | −1.04 *** |
-| Co-location (similar size) | ns | −0.50 *** | −2.00 *** | ns | ns | −2.00 ** |
+| Co-location (similar size) | ns | −0.50 *** | −2.00 *** | ns | ns | −2.00 *** |
 
-**Max simultaneous events** is the strongest finding. The suppression grows dramatically from Q50 to Q90, meaning psilocybin generates extreme high-synchrony bursting in WT that is almost entirely absent in both AV and IP. This indicates complete dependence of synchronized network bursting on 5-HT2A/IP3R2 signaling.
+Max simultaneous events is the strongest signal — WT increases +1.13 at Q50 to +6.93 at Q90 within-group, with near-identical suppression in both AV and IP at Q90.
 
-**Area and perimeter** & **Co-localized events** show a tail-specific pattern, Q75–Q90 are strongly suppressed. 
+### Finding 2 — Pathway-independent: integrated calcium activity
 
-**AV-only effects (not shared with IP):** Rise time, decay time, and duration 50–50% were significantly prolonged in AV at Q50 (all p<0.01) but showed no significant IP effects at any quantile. This may reflect additional 5-HT2A-mediated kinetic effects beyond IP3R2, or limited power in the IP group (~15 events/slice).
+dF/F AUC and Duration increase above baseline in both WT and AV with comparable magnitude, producing no between-group difference. Only detectable via within-group analysis.
 
-**No significant effects in either group:** Max ΔF, Max ΔF/F, all three AUC variants (raw/ΔF/ΔF/F), and duration 10–10% showed no significant effects after FDR correction. Psilocybin via 5-HT2A/IP3R2 selectively targets event size, spatial clustering, and network synchrony rather than uniformly altering all calcium event properties.
+| Feature (Drug vs Baseline) | WT Q50 | WT Q75 | WT Q90 | AV Q50 | AV Q75 | AV Q90 |
+|---------|--------|--------|--------|--------|--------|--------|
+| dF/F AUC | +0.15 *** | +0.27 *** | +0.48 *** | +0.18 *** | +0.18 ** | +0.35 ** |
+| Duration (overlay) | +0.11 *** | +0.14 ** | +0.27 *** | ~ | ~ | ~ |
 
+IP is excluded from this table: with only 90 drug events across 6 slices, the within-group model could not be computed for either feature due to insufficient non-missing values per condition.
